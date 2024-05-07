@@ -1,0 +1,129 @@
+import textwrap
+
+
+def depositar(saldo_atual, valor_dep, extr):
+    if valor_dep < 0:
+        print("Digite um valor positivo.")
+    else:
+        saldo_atual += valor_dep
+        extr += f"Deposito no valor de {valor_dep:.2f}\n"
+    return saldo_atual, extr
+
+
+def sacar(*, saldo, valor, extr, num_saques, lim_saques):   
+    if valor> saldo:
+        print("Voce nao possui saldo suficiente para fazer esse saque")
+    elif valor > VALOR_MAXIMO_SAQUE: 
+        print("Nao foi possivel sacar.") 
+        print("O limite maximo para saque é R$500,00.")
+    elif valor < 0:
+        print("Nao e possivel fazer saques negativos.")
+    elif num_saques == lim_saques:
+        print("Nao foi possivel sacar.")
+        print("Voce atingiu o numero limite de saques diarios.")
+    else:
+        saldo -= valor
+        extr += f"Saque realizado no valor de {valor:.2f}"
+        print(f"Saldo disponivel na conta R${saldo}")
+        num_saques += 1
+
+    return saldo, extr, num_saques
+
+def verExtrato(saldo, *, extr):
+    if not extr:
+        print("Voce nao fez depositos nem saques")
+    else:
+        print(10 *"-"+"EXTRATO-BANCARIO"+10*"-")
+        print(f"Seu extrato é:\n{extrato}")
+        print(f"Saldo atual da conta R${saldo:.2f}")
+
+def cadastrarUsuario(usuarios):
+    cpf = input("Digite seu CPF: ")
+    usuario = filtrarUsuarios(cpf, usuarios)
+
+    if usuario:
+        print("Esse CPF ja foi cadastrado")
+        return
+
+    nome = input("Digite seu nome: ")
+    data_nascimento = input("Digite sua data de nascimento dd-mm-aaaa: ")
+    endereco = input("Digite seu endereço (logradouro, numero - bairro - cidade/sigla estado): ")
+    usuarios.append({"nome": nome, "data de nascimento": data_nascimento, "cpf": cpf, "endereço": endereco})
+    print("USUÁRIO CRIADO COM SUCESSO!!")
+
+def filtrarUsuarios(cpf, usuarios):
+    usuarios_filtrados = [usuario for usuario in usuarios if usuarios["cpf"] == cpf]
+    return usuarios_filtrados[0] if usuarios_filtrados else None
+    
+def cadastrarContaBancaria(agencia, numero_conta, usuarios):
+
+    cpf = input("informe o CPF do usuário: ")
+    usuario = filtrarUsuarios(cpf, usuarios)
+
+    if usuario:
+        print("CONTA CRIADA COM SUCESSO!!")
+        return{"agencia": agencia, "numero da conta": numero_conta, "usuário": usuario}
+    else:
+        print("USUARIO NÂO ENCONTRADO, FLUXO DE CRIAÇÃO DE CONTA ENCERRADO.")
+    
+def listar_contas(contas):
+    for conta in contas:
+        linha = f"""
+            Agencia: \t{conta['agencia']}
+            C/C:\t\t{conta['numero da conta']}
+            Titular:\t{conta['usuário']['nome']}
+        """
+        print("=" * 100)
+        print(textwrap.decent(linha))
+    if contas == []:
+        print("Não há contas para listar")
+
+menu = """
+Selecione uma opcao:
+    [d] Depositar
+    [s] Sacar
+    [e] Extrato
+    [nc] Nova conta
+    [lc] Listar contas
+    [nu] Novo usuário
+    [q]  Sair da operacao
+    """
+
+AGENCIA = "0001"
+cpfs = []
+contas = []
+usuarios = []
+saldo = 0
+LIMITE_SAQUES = 3
+VALOR_MAXIMO_SAQUE = 500
+qtd_saques = 0
+extrato = ""
+
+
+while(True):
+    opcao = input(menu)
+
+    if opcao == "d":
+        valor_dep = float(input("Digite o valor que voce deseja depositar: "))
+        saldo, extrato = depositar(saldo, valor_dep, extrato) #Para atualizar o valor das variaveis fora da função precisa atribuir o resultado da função a uma ou mais variaveis, depende da qtd de retornos.
+    elif opcao == "s":
+        valor_saque = float(input("Digite o valor que voce deseja sacar: "))
+        saldo, extrato, qtd_saques = sacar(saldo= saldo, valor = valor_saque, extr= extrato, num_saques= qtd_saques, lim_saques= LIMITE_SAQUES) #Para atualizar o valor das variaveis fora da função precisa atribuir o resultado da função a uma ou mais variaveis, depende da qtd de retornos.
+    elif opcao == "e":
+        verExtrato(saldo, extr= extrato)
+    elif opcao == "nu":
+        cadastrarUsuario(usuarios)
+    elif opcao == "nc":
+        numero_conta = len(contas) + 1
+        conta = cadastrarContaBancaria(AGENCIA, numero_conta, usuarios)
+
+        if conta:
+            contas.append(conta)
+
+    elif opcao == "lc":
+        listar_contas(contas)
+    elif opcao == "q":
+        print("Voce saiu da aplicacao.")
+        break
+    else:
+        print("Digite uma opcao compativel com o sistema.")
